@@ -1,0 +1,102 @@
+/* CSS 变量定义 - 主题系统核心 */
+
+/* 深色主题 (默认) */
+:root {
+  /* 背景色 */
+  --bg-main: #0b0f14;
+  --bg-panel: #161b22;
+  --bg-viewer: #000000;
+  --bg-card: #1c2128;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --bg-active: rgba(59, 130, 246, 0.1);
+  
+  /* 文字色 */
+  --text-main: #e6edf3;
+  --text-sub: #7d8590;
+  --text-primary: #3b82f6;
+  --text-success: #10b981;
+  --text-warning: #f59e0b;
+  --text-danger: #ef4444;
+  
+  /* 边框 */
+  --border-color: #30363d;
+  --border-hover: #3b82f6;
+  
+  /* 主色调 */
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  
+  /* 阴影和渐变 */
+  --shadow-light: none;
+  --shadow-medium: none;
+  --shadow-heavy: none;
+  --gradient-light: none;
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  /* 尺寸 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  
+  /* 间距 */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+  
+  /* 字体大小 */
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 28px;
+  --text-5xl: 32px;
+  --text-6xl: 48px;
+  
+  /* 字体粗细 */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+}
+
+/* 浅色主题 */
+[data-theme="light"] {
+  --bg-main: #f6f8fa;
+  --bg-panel: #ffffff;
+  --bg-viewer: #f0f0f0;
+  --bg-card: #ffffff;
+  --bg-hover: rgba(0, 0, 0, 0.03);
+  --bg-active: rgba(59, 130, 246, 0.1);
+  
+  --text-main: #1f2937;
+  --text-sub: #6b7280;
+  --text-primary: #3b82f6;
+  --text-success: #10b981;
+  --text-warning: #f59e0b;
+  --text-danger: #ef4444;
+  
+  --border-color: #d1d5db;
+  --border-hover: #3b82f6;
+  
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  
+  --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-heavy: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --gradient-light: linear-gradient(to bottom, #ffffff, #f9fafb);
+}

@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="filename" content="medical_imaging_system.html">
+    <title>MedVision - 医学影像可视化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0b0f14;
+            --bg-panel: #161b22;
+            --bg-viewer: #000000;
+            --bg-card: #1c2128;
+            --text-main: #e6edf3;
+            --text-sub: #7d8590;
+            --border-color: #30363d;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow-light: none;
+            --gradient-light: none;
+        }
+
+        [data-theme="light"] {
+            --bg-main: #f6f8fa;
+            --bg-panel: #ffffff;
+            --bg-viewer: #f0f0f0;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --border-color: #d1d5db;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow-light: 0 1px 3px rgba(0,0,0,0.05);
+            --gradient-light: linear-gradient(to bottom, #ffffff, #f9fafb);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            width: 1440px;
+            margin: 0 auto;
+            overflow-x: hidden;
+        }
+
+        .page-section {
+            display: none;
+            min-height: calc(100vh - 64px);
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            height: 64px;
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+        }
+
+        .navbar-center {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            color: var(--text-sub);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            color: var(--text-main);
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            background-color: rgba(59,130,246,0.1);
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(59,130,246,0.1);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 52px;
+            right: 32px;
+            width: 200px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .dropdown-item.danger:hover {
+            background-color: rgba(239,68,68,0.1);
+            color: var(--danger);
+        }
+
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(59,130,246,0.05);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        /* 输入框 */
+        .input {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: var(--bg-viewer);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input:focus {
+            border-color: var(--primary-color);
+            background-color: var(--bg-panel);
+        }
+
+        /* 首页样式 */
+        .home-container {
+            padding: 80px 120px;
+        }
+
+        .home-hero {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .home-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .home-subtitle {
+            font-size: 18px;
+            color: var(--text-sub);
+            margin-bottom: 40px;
+        }
+
+        .home-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 80px;
+        }
+
+        .feature-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 32px 24px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background-color: rgba(59,130,246,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: var(--primary-color);
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: var(--text-sub);
+        }
+
+        .recent-cases {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .case-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .case-item:last-child {
+            border-bottom: none;
+        }
+
+        .case-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .case-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(59,130,246,0.1);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+
+        .case-details h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .case-details p {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background-color: rgba(16,185,129,0.1);
+            color: var(--success);
+        }
+
+        .status-processing {
+            background-color: rgba(245,158,11,0.1);
+            color: var(--warning);
+        }
+
+        /* 工作台样式 */
+        .workbench-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 64px);
+        }
+
+        .toolbar {
+            height: 56px;
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            padding: 8px 16px;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(59,130,246,0.05);
+        }
+
+        .workbench-main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar-left {
+            width: 20%;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .case-tree {
+            padding: 8px;
+        }
+
+        .tree-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+
+        .tree-item:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .tree-item.selected {
+            background-color: rgba(59,130,246,0.1);
+            color: var(--primary-color);
+        }
+
+        .tree-item.nested {
+            padding-left: 32px;
+        }
+
+        .viewer-container {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-main);
+        }
+
+        .viewer-header {
+            height: 48px;
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .viewer-content {
+            flex: 1;
+            background-color: var(--bg-viewer);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .viewer-placeholder {
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+
+        .viewer-info {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            font-size: 11px;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+
+        .viewer-controls {
+            height: 56px;
+            background-color: var(--bg-panel);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 16px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .slider-thumb {
+            width: 12px;
+            height: 12px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            top: -4px;
+            left: 30%;
+        }
+
+        .sidebar-right {
+            width: 40%;
+            background-color: var(--bg-panel);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .model-info {
+            padding: 16px;
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-sub);
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .statusbar {
+            height: 32px;
+            background-color: var(--bg-panel);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 12px;
+            color: var(--text-sub);
+            gap: 24px;
+        }
+
+        /* 工作库样式 */
+        .library-container {
+            padding: 24px;
+        }
+
+        .filter-section {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .filter-item label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .select {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: var(--bg-viewer);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-main);
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .library-main {
+            display: flex;
+            gap: 24px;
+        }
+
+        .category-sidebar {
+            width: 200px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .category-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .category-item:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .category-item.active {
+            background-color: rgba(59,130,246,0.1);
+            color: var(--primary-color);
+        }
+
+        .library-content {
+            flex: 1;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px 20px;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        .table-container {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--bg-card);
+        }
+
+        th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-sub);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 14px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover {
+            background-color: rgba(255,255,255,0.02);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 个人设置样式 */
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .settings-section {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .settings-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group-inline {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* 历史记录样式 */
+        .history-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .history-filters {
+            display: flex;
+            gap: 12px;
+        }
+
+        .timeline {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 24px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(59,130,246,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .timeline-desc {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <div class="logo">M</div>
+            <span style="font-size: 18px; font-weight: 600;">MedVision</span>
+        </div>
+        <div class="navbar-center">
+            <div class="nav-item active" data-page="home">首页</div>
+            <div class="nav-item" data-page="workbench">工作台</div>
+            <div class="nav-item" data-page="library">工作库</div>
+        </div>
+        <div class="navbar-right">
+            <div class="theme-toggle" id="themeToggle">
+                <i data-lucide="sun" style="width: 18px; height: 18px;"></i>
+            </div>
+            <div class="user-avatar" id="userAvatar"></div>
+        </div>
+    </nav>
+
+    <!-- 用户下拉菜单 -->
+    <div class="user-dropdown" id="userDropdown">
+        <div class="dropdown-item" data-page="settings">
+            <i data-lucide="settings" style="width: 16px; height: 16px;"></i>
+            <span>个人设置</span>
+        </div>
+        <div class="dropdown-item" data-page="history">
+            <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
+            <span>历史记录</span>
+        </div>
+        <div class="dropdown-item danger">
+            <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
+            <span>退出登录</span>
+        </div>
+    </div>
+
+    <!-- 页面一：首页 -->
+    <section id="page-home" class="page-section active">
+        <div class="home-container">
+            <div class="home-hero">
+                <h1 class="home-title">医学影像可视化平台</h1>
+                <p class="home-subtitle">专业的DICOM影像查看 · 高精度三维重建 · 智能分割分析</p>
+                <div class="home-buttons">
+                    <button class="btn btn-primary" data-page="workbench">
+                        <i data-lucide="play" style="width: 18px; height: 18px;"></i>
+                        进入工作台
+                    </button>
+                    <button class="btn btn-secondary" data-page="library">
+                        <i data-lucide="folder-open" style="width: 18px; height: 18px;"></i>
+                        打开工作库
+                    </button>
+                </div>
+            </div>
+
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="image" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 class="feature-title">影像查看</h3>
+                    <p class="feature-desc">支持DICOM格式，多序列同步显示，窗宽窗位调节</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="box" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 class="feature-title">3D重建</h3>
+                    <p class="feature-desc">高精度三维模型重建，实时交互操作，多角度观察</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-lucide="scissors" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 class="feature-title">分割分析</h3>
+                    <p class="feature-desc">智能器官分割，体积精确测量，病灶标注定位</p>
+                </div>
+            </div>
+
+            <div class="recent-cases">
+                <h2 class="section-title">
+                    <i data-lucide="clock" style="width: 20px; height: 20px;"></i>
+                    最近病例
+                </h2>
+                <div class="case-item">
+                    <div class="case-info">
+                        <div class="case-icon">
+                            <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div class="case-details">
+                            <h4>P20240315-001 - 肺部CT扫描</h4>
+                            <p>上传于 2024-03-15 14:32 · 128切片</p>
+                        </div>
+                    </div>
+                    <span class="status-badge status-completed">已完成</span>
+                </div>
+                <div class="case-item">
+                    <div class="case-info">
+                        <div class="case-icon">
+                            <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div class="case-details">
+                            <h4>P20240314-022 - 肾脏MRI</h4>
+                            <p>上传于 2024-03-14 09:18 · 256切片</p>
+                        </div>
+                    </div>
+                    <span class="status-badge status-completed">已完成</span>
+                </div>
+                <div class="case-item">
+                    <div class="case-info">
+                        <div class="case-icon">
+                            <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div class="case-details">
+                            <h4>P20240313-015 - 骨骼CT</h4>
+                            <p>上传于 2024-03-13 16:45 · 192切片</p>
+                        </div>
+                    </div>
+                    <span class="status-badge status-processing">处理中</span>
+                </div>
+                <div class="case-item">
+                    <div class="case-info">
+                        <div class="case-icon">
+                            <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div class="case-details">
+                            <h4>P20240312-008 - 肝脏CT增强</h4>
+                            <p>上传于 2024-03-12 11:20 · 320切片</p>
+                        </div>
+                    </div>
+                    <span class="status-badge status-completed">已完成</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页面二：工作台 -->
+    <section id="page-workbench" class="page-section">
+        <div class="workbench-container">
+            <div class="toolbar">
+                <button class="tool-btn">
+                    <i data-lucide="upload" style="width: 16px; height: 16px;"></i>
+                    Upload
+                </button>
+                <button class="tool-btn">
+                    <i data-lucide="zoom-in" style="width: 16px; height: 16px;"></i>
+                    Zoom
+                </button>
+                <button class="tool-btn">
+                    <i data-lucide="move" style="width: 16px; height: 16px;"></i>
+                    Pan
+                </button>
+                <button class="tool-btn">
+                    <i data-lucide="scissors" style="width: 16px; height: 16px;"></i>
+                    Segment
+                </button>
+                <button class="tool-btn">
+                    <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
+                    Reset
+                </button>
+            </div>
+
+            <div class="workbench-main">
+                <aside class="sidebar-left">
+                    <div class="sidebar-header">病例 / 序列树</div>
+                    <div class="case-tree">
+                        <div class="tree-item">
+                            <i data-lucide="folder" style="width: 14px; height: 14px;"></i>
+                            P20240315-001
+                        </div>
+                        <div class="tree-item nested selected">
+                            <i data-lucide="image" style="width: 14px; height: 14px;"></i>
+                            Series 1 - Axial CT
+                        </div>
+                        <div class="tree-item nested">
+                            <i data-lucide="image" style="width: 14px; height: 14px;"></i>
+                            Series 2 - Coronal CT
+                        </div>
+                        <div class="tree-item nested">
+                            <i data-lucide="image" style="width: 14px; height: 14px;"></i>
+                            Series 3 - Sagittal CT
+                        </div>
+                        <div class="tree-item">
+                            <i data-lucide="folder" style="width: 14px; height: 14px;"></i>
+                            P20240314-022
+                        </div>
+                        <div class="tree-item nested">
+                            <i data-lucide="image" style="width: 14px; height: 14px;"></i>
+                            Series 1 - T1 MRI
+                        </div>
+                        <div class="tree-item nested">
+                            <i data-lucide="image" style="width: 14px; height: 14px;"></i>
+                            Series 2 - T2 MRI
+                        </div>
+                        <div class="tree-item">
+                            <i data-lucide="folder" style="width: 14px; height: 14px;"></i>
+                            P20240313-015
+                        </div>
+                        <div class="tree-item nested">
+                            <i data-lucide="image" style="width: 14px; height: 14px;"></i>
+                            Series 1 - Bone CT
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="viewer-container">
+                    <div class="viewer-header">DICOM Viewer - Series 1 Axial CT</div>
+                    <div class="viewer-content">
+                        <div class="viewer-placeholder">[DICOM 影像显示区域]</div>
+                        <div class="viewer-info">
+                            Slice: 64/128<br>
+                            Zoom: 100%<br>
+                            WW: 400<br>
+                            WL: 40
+                        </div>
+                    </div>
+                    <div class="viewer-controls">
+                        <span style="font-size: 12px;">Slice: 64/128</span>
+                        <div class="slider">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="sidebar-right">
+                    <div class="viewer-header">3D Model Viewer</div>
+                    <div class="viewer-content">
+                        <div class="viewer-placeholder">[3D 模型渲染区域]</div>
+                    </div>
+                    <div class="model-info">
+                        <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">模型信息</h3>
+                        <div class="info-row">
+                            <span class="info-label">器官类型</span>
+                            <span class="info-value">肺部</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">体积</span>
+                            <span class="info-value">4250.3 cm³</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">分割状态</span>
+                            <span class="info-value" style="color: var(--success);">已完成</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">三角面数</span>
+                            <span class="info-value">152,480</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <div class="statusbar">
+                <span>状态: 就绪</span>
+                <span>病例ID: P20240315-001</span>
+                <span>当前切片: 64/128</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页面三：工作库 -->
+    <section id="page-library" class="page-section">
+        <div class="library-container">
+            <div class="filter-section">
+                <div class="filter-grid">
+                    <div class="filter-item">
+                        <label>搜索病例</label>
+                        <input type="text" class="input" placeholder="输入病例ID或关键词">
+                    </div>
+                    <div class="filter-item">
+                        <label>器官筛选</label>
+                        <select class="select">
+                            <option>全部器官</option>
+                            <option>骨骼</option>
+                            <option>肺</option>
+                            <option>肾</option>
+                            <option>肝</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>状态筛选</label>
+                        <select class="select">
+                            <option>全部状态</option>
+                            <option>已完成</option>
+                            <option>处理中</option>
+                            <option>待处理</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>时间筛选</label>
+                        <select class="select">
+                            <option>全部时间</option>
+                            <option>今天</option>
+                            <option>最近7天</option>
+                            <option>最近30天</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="library-main">
+                <aside class="category-sidebar">
+                    <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">分类</h3>
+                    <div class="category-item active">全部</div>
+                    <div class="category-item">骨骼</div>
+                    <div class="category-item">肺</div>
+                    <div class="category-item">肾</div>
+                    <div class="category-item">肝</div>
+                    <div class="category-item">心脏</div>
+                    <div class="category-item">脑部</div>
+                    <div class="category-item">其他</div>
+                </aside>
+
+                <div class="library-content">
+                    <div class="stats-bar">
+                        <div class="stat-card">
+                            <div class="stat-value">156</div>
+                            <div class="stat-label">总病例数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">142</div>
+                            <div class="stat-label">已完成</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">处理中</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">2</div>
+                            <div class="stat-label">待处理</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>病例ID</th>
+                                    <th>器官类型</th>
+                                    <th>状态</th>
+                                    <th>上传时间</th>
+                                    <th>切片数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>P20240315-001</td>
+                                    <td>肺部</td>
+                                    <td><span class="status-badge status-completed">已完成</span></td>
+                                    <td>2024-03-15 14:32</td>
+                                    <td>128</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-primary">查看</button>
+                                            <button class="btn btn-sm btn-secondary">导出</button>
+                                            <button class="btn btn-sm btn-secondary">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>P20240314-022</td>
+                                    <td>肾脏</td>
+                                    <td><span class="status-badge status-completed">已完成</span></td>
+                                    <td>2024-03-14 09:18</td>
+                                    <td>256</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-primary">查看</button>
+                                            <button class="btn btn-sm btn-secondary">导出</button>
+                                            <button class="btn btn-sm btn-secondary">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>P20240313-015</td>
+                                    <td>骨骼</td>
+                                    <td><span class="status-badge status-processing">处理中</span></td>
+                                    <td>2024-03-13 16:45</td>
+                                    <td>192</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-primary">查看</button>
+                                            <button class="btn btn-sm btn-secondary">导出</button>
+                                            <button class="btn btn-sm btn-secondary">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>P20240312-008</td>
+                                    <td>肝脏</td>
+                                    <td><span class="status-badge status-completed">已完成</span></td>
+                                    <td>2024-03-12 11:20</td>
+                                    <td>320</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-primary">查看</button>
+                                            <button class="btn btn-sm btn-secondary">导出</button>
+                                            <button class="btn btn-sm btn-secondary">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>P20240311-034</td>
+                                    <td>肺部</td>
+                                    <td><span class="status-badge status-completed">已完成</span></td>
+                                    <td>2024-03-11 15:50</td>
+                                    <td>156</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-primary">查看</button>
+                                            <button class="btn btn-sm btn-secondary">导出</button>
+                                            <button class="btn btn-sm btn-secondary">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>P20240310-019</td>
+                                    <td>心脏</td>
+                                    <td><span class="status-badge status-processing">处理中</span></td>
+                                    <td>2024-03-10 10:12</td>
+                                    <td>288</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-primary">查看</button>
+                                            <button class="btn btn-sm btn-secondary">导出</button>
+                                            <button class="btn btn-sm btn-secondary">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页面四：个人设置 -->
+    <section id="page-settings" class="page-section">
+        <div class="settings-container">
+            <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 32px;">个人设置</h1>
+
+            <div class="settings-section">
+                <h2 class="settings-header">用户信息</h2>
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" class="input" value="Dr. Zhang Wei" readonly>
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" class="input" value="zhangwei@hospital.com" readonly>
+                </div>
+                <div class="form-group">
+                    <label>注册时间</label>
+                    <input type="text" class="input" value="2023-05-12" readonly>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="settings-header">偏好设置</h2>
+                <div class="form-group">
+                    <label>主题模式</label>
+                    <select class="select">
+                        <option>深色模式</option>
+                        <option>浅色模式</option>
+                        <option>跟随系统</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>默认器官类型</label>
+                    <select class="select">
+                        <option>无</option>
+                        <option>骨骼</option>
+                        <option>肺</option>
+                        <option>肾</option>
+                        <option>肝</option>
+                    </select>
+                </div>
+                <div class="form-group-inline">
+                    <input type="checkbox" class="checkbox" id="autoLoad" checked>
+                    <label for="autoLoad" style="margin: 0; cursor: pointer;">自动加载最近病例</label>
+                </div>
+                <div class="form-group-inline">
+                    <input type="checkbox" class="checkbox" id="autoSegment">
+                    <label for="autoSegment" style="margin: 0; cursor: pointer;">上传后自动开始分割</label>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="settings-header">安全设置</h2>
+                <div class="form-group">
+                    <label>修改密码</label>
+                    <input type="password" class="input" placeholder="输入新密码">
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" class="input" placeholder="再次输入新密码">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary">取消</button>
+                <button class="btn btn-primary">保存设置</button>
+                <button class="btn btn-danger">退出登录</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页面五：历史记录 -->
+    <section id="page-history" class="page-section">
+        <div class="history-container">
+            <div class="history-header">
+                <h1 style="font-size: 32px; font-weight: 700;">历史记录</h1>
+                <div class="history-filters">
+                    <select class="select" style="width: 150px;">
+                        <option>全部类型</option>
+                        <option>上传</option>
+                        <option>分割</option>
+                        <option>查看</option>
+                        <option>导出</option>
+                    </select>
+                    <select class="select" style="width: 150px;">
+                        <option>全部时间</option>
+                        <option>今天</option>
+                        <option>最近7天</option>
+                        <option>最近30天</option>
+                    </select>
+                    <button class="btn btn-danger">清空记录</button>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background-color: rgba(59,130,246,0.1);">
+                        <i data-lucide="eye" style="width: 20px; height: 20px; color: var(--primary-color);"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2024-03-15 14:45:22</div>
+                        <div class="timeline-title">查看病例</div>
+                        <div class="timeline-desc">打开并查看病例 P20240315-001 的 DICOM 影像和 3D 模型</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background-color: rgba(16,185,129,0.1);">
+                        <i data-lucide="upload" style="width: 20px; height: 20px; color: var(--success);"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2024-03-15 14:32:10</div>
+                        <div class="timeline-title">上传病例</div>
+                        <div class="timeline-desc">成功上传病例 P20240315-001，共 128 个切片文件</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background-color: rgba(245,158,11,0.1);">
+                        <i data-lucide="scissors" style="width: 20px; height: 20px; color: var(--warning);"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2024-03-14 16:18:45</div>
+                        <div class="timeline-title">完成分割</div>
+                        <div class="timeline-desc">病例 P20240314-022 的肾脏分割已完成，体积 285.6 cm³</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background-color: rgba(59,130,246,0.1);">
+                        <i data-lucide="download" style="width: 20px; height: 20px; color: var(--primary-color);"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2024-03-14 09:25:33</div>
+                        <div class="timeline-title">导出模型</div>
+                        <div class="timeline-desc">导出病例 P20240313-015 的 3D 模型为 STL 格式</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background-color: rgba(16,185,129,0.1);">
+                        <i data-lucide="upload" style="width: 20px; height: 20px; color: var(--success);"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2024-03-13 16:45:12</div>
+                        <div class="timeline-title">上传病例</div>
+                        <div class="timeline-desc">成功上传病例 P20240313-015，共 192 个切片文件</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background-color: rgba(59,130,246,0.1);">
+                        <i data-lucide="eye" style="width: 20px; height: 20px; color: var(--primary-color);"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2024-03-12 15:20:08</div>
+                        <div class="timeline-title">查看病例</div>
+                        <div class="timeline-desc">打开并查看病例 P20240312-008 的增强 CT 影像</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background-color: rgba(245,158,11,0.1);">
+                        <i data-lucide="scissors" style="width: 20px; height: 20px; color: var(--warning);"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2024-03-12 11:52:30</div>
+                        <div class="timeline-title">完成分割</div>
+                        <div class="timeline-desc">病例 P20240312-008 的肝脏分割已完成，体积 1560.2 cm³</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background-color: rgba(16,185,129,0.1);">
+                        <i data-lucide="upload" style="width: 20px; height: 20px; color: var(--success);"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2024-03-12 11:20:15</div>
+                        <div class="timeline-title">上传病例</div>
+                        <div class="timeline-desc">成功上传病例 P20240312-008，共 320 个切片文件</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+
+            // 页面导航
+            const navItems = document.querySelectorAll('.nav-item');
+            const dropdownItems = document.querySelectorAll('.dropdown-item[data-page]');
+            const homeButtons = document.querySelectorAll('.btn[data-page]');
+            const pages = document.querySelectorAll('.page-section');
+
+            function switchPage(pageId) {
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById('page-' + pageId).classList.add('active');
+
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.page === pageId) {
+                        item.classList.add('active');
+                    }
+                });
+
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    switchPage(this.dataset.page);
+                });
+            });
+
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    switchPage(this.dataset.page);
+                });
+            });
+
+            homeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    switchPage(this.dataset.page);
+                });
+            });
+
+            // 用户下拉菜单
+            const userAvatar = document.getElementById('userAvatar');
+            const userDropdown = document.getElementById('userDropdown');
+
+            userAvatar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function() {
+                userDropdown.classList.remove('show');
+            });
+
+            userDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // 主题切换
+            const themeToggle = document.getElementById('themeToggle');
+            const body = document.body;
+
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                body.setAttribute('data-theme', newTheme);
+
+                const icon = themeToggle.querySelector('i');
+                icon.setAttribute('data-lucide', newTheme === 'dark' ? 'sun' : 'moon');
+                lucide.createIcons();
+            });
+        });
+    </script>
+</body>
+</html>
