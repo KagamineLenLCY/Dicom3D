@@ -105,6 +105,7 @@ const getStatusClass = (status) => {
 }
 
 .home-title {
+  color: var(--text-main);
   font-size: clamp(2rem, 5vw, var(--text-6xl));
   font-weight: var(--font-bold);
   margin-bottom: var(--space-lg);
@@ -180,6 +181,7 @@ const getStatusClass = (status) => {
 }
 
 .section-title {
+  color: var(--text-main);
   font-size: var(--text-xl);
   font-weight: var(--font-semibold);
   margin-bottom: var(--space-xl);
