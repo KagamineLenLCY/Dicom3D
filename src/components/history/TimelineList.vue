@@ -1,12 +1,10 @@
 <template>
   <div class="timeline">
     <div v-for="(item, index) in historyData" :key="index" class="timeline-item">
-      <div 
-        class="timeline-icon" 
-        :style="{ backgroundColor: getIconBgColor(item.type) }"
-      >
-        <i :class="getIconClass(item.type)"></i>
+      <div class="timeline-icon" :class="getIconBgClass(item.type)">
+        <component :is="getIconComponent(item.type)" class="timeline-svg-icon" />
       </div>
+
       <div class="timeline-content">
         <div class="timeline-time">{{ item.time }}</div>
         <div class="timeline-title">{{ item.title }}</div>
@@ -17,26 +15,27 @@
 </template>
 
 <script setup>
+import { Eye, Upload, ScanSearch, Download, FileText } from 'lucide-vue-next'
 import { historyData } from '../../utils/mockData'
 
-const getIconClass = (type) => {
+const getIconComponent = (type) => {
   const map = {
-    view: 'icon-eye',
-    upload: 'icon-upload',
-    segment: 'icon-scissors',
-    export: 'icon-download'
+    view: Eye,
+    upload: Upload,
+    segment: ScanSearch,
+    export: Download
   }
-  return map[type] || 'icon-default'
+  return map[type] || FileText
 }
 
-const getIconBgColor = (type) => {
+const getIconBgClass = (type) => {
   const map = {
-    view: 'var(--bg-active)',
-    upload: 'rgba(16, 185, 129, 0.1)',
-    segment: 'rgba(245, 158, 11, 0.1)',
-    export: 'var(--bg-active)'
+    view: 'timeline-icon-view',
+    upload: 'timeline-icon-upload',
+    segment: 'timeline-icon-segment',
+    export: 'timeline-icon-export'
   }
-  return map[type] || 'var(--bg-hover)'
+  return map[type] || 'timeline-icon-default'
 }
 </script>
 
@@ -69,6 +68,33 @@ const getIconBgColor = (type) => {
   flex-shrink: 0;
 }
 
+.timeline-icon-view {
+  background-color: var(--bg-active);
+}
+
+.timeline-icon-upload {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.timeline-icon-segment {
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.timeline-icon-export {
+  background-color: var(--bg-active);
+}
+
+.timeline-icon-default {
+  background-color: var(--bg-hover);
+}
+
+.timeline-svg-icon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.8;
+  color: var(--primary-color);
+}
+
 .timeline-content {
   flex: 1;
   min-width: 0;
@@ -81,6 +107,7 @@ const getIconBgColor = (type) => {
 }
 
 .timeline-title {
+  color: var(--text-main);
   font-size: var(--text-base);
   font-weight: var(--font-medium);
   margin-bottom: 4px;
@@ -92,28 +119,21 @@ const getIconBgColor = (type) => {
   line-height: 1.5;
 }
 
-.icon {
-  display: inline-block;
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.icon-eye::before { content: "👁️"; }
-.icon-upload::before { content: "⬆️"; }
-.icon-scissors::before { content: "✂️"; }
-.icon-download::before { content: "⬇️"; }
-.icon-default::before { content: "📋"; }
-
 @media (max-width: 768px) {
   .timeline-item {
     gap: var(--space-md);
   }
-  
+
   .timeline-icon {
     width: 2rem;
     height: 2rem;
   }
-  
+
+  .timeline-svg-icon {
+    width: 16px;
+    height: 16px;
+  }
+
   .timeline-content {
     font-size: var(--text-sm);
   }

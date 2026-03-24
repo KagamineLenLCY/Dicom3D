@@ -1,26 +1,31 @@
 <template>
   <aside class="sidebar-left">
     <div class="sidebar-header">病例 / 序列树</div>
+
     <div class="case-tree">
       <div v-for="item in treeData" :key="item.id">
-        <div 
-          class="tree-item" 
+        <div
+          class="tree-item"
           :class="{ selected: selectedId === item.id }"
           @click="selectItem(item.id, item.type)"
         >
-          <i :class="item.type === 'folder' ? 'icon-folder' : 'icon-image'"></i>
-          {{ item.name }}
+          <component
+            :is="item.type === 'folder' ? FolderOpen : Image"
+            class="tree-icon"
+          />
+          <span class="tree-label">{{ item.name }}</span>
         </div>
+
         <div v-if="item.children" class="tree-children">
-          <div 
-            v-for="child in item.children" 
+          <div
+            v-for="child in item.children"
             :key="child.id"
             class="tree-item nested"
             :class="{ selected: selectedId === child.id }"
             @click="selectItem(child.id, child.type)"
           >
-            <i class="icon-image"></i>
-            {{ child.name }}
+            <Image class="tree-icon" />
+            <span class="tree-label">{{ child.name }}</span>
           </div>
         </div>
       </div>
@@ -30,6 +35,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { FolderOpen, Image } from 'lucide-vue-next'
 import { caseTree } from '../../utils/mockData'
 
 const treeData = caseTree
@@ -62,6 +68,7 @@ const selectItem = (id, type) => {
   top: 0;
   background-color: var(--bg-panel);
   z-index: 10;
+  color: var(--text-main);
 }
 
 .case-tree {
@@ -81,6 +88,7 @@ const selectItem = (id, type) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--text-main);
 }
 
 .tree-item:hover {
@@ -100,15 +108,18 @@ const selectItem = (id, type) => {
   margin-left: var(--space-lg);
 }
 
-.icon {
-  display: inline-block;
-  width: 0.875rem;
-  height: 0.875rem;
+.tree-icon {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.8;
   flex-shrink: 0;
 }
 
-.icon-folder::before { content: "📁"; }
-.icon-image::before { content: "🖼️"; }
+.tree-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 @media (max-width: 1024px) {
   .sidebar-left {

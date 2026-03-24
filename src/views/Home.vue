@@ -4,13 +4,15 @@
       <div class="home-hero">
         <h1 class="home-title">医学影像可视化平台</h1>
         <p class="home-subtitle">专业的DICOM影像查看 · 高精度三维重建 · 智能分割分析</p>
+
         <div class="home-buttons">
           <button class="btn btn-primary" @click="goToWorkspace">
-            <i class="icon icon-play"></i>
+            <Play class="icon" />
             进入工作台
           </button>
+
           <button class="btn btn-secondary" @click="goToLibrary">
-            <i class="icon icon-folder"></i>
+            <FolderOpen class="icon" />
             打开工作库
           </button>
         </div>
@@ -19,21 +21,23 @@
       <div class="feature-cards">
         <div class="feature-card">
           <div class="feature-icon">
-            <i class="icon icon-image"></i>
+            <Image class="icon-lg" />
           </div>
           <h3 class="feature-title">影像查看</h3>
           <p class="feature-desc">支持DICOM格式，多序列同步显示，窗宽窗位调节</p>
         </div>
+
         <div class="feature-card">
           <div class="feature-icon">
-            <i class="icon icon-box"></i>
+            <Box class="icon-lg" />
           </div>
           <h3 class="feature-title">3D重建</h3>
           <p class="feature-desc">高精度三维模型重建，实时交互操作，多角度观察</p>
         </div>
+
         <div class="feature-card">
           <div class="feature-icon">
-            <i class="icon icon-scissors"></i>
+            <ScanSearch class="icon-lg" />
           </div>
           <h3 class="feature-title">分割分析</h3>
           <p class="feature-desc">智能器官分割，体积精确测量，病灶标注定位</p>
@@ -42,32 +46,50 @@
 
       <div class="recent-cases">
         <h2 class="section-title">
-          <i class="icon icon-clock"></i>
+          <History class="icon" />
           最近病例
         </h2>
+
         <div v-for="item in recentCases" :key="item.id" class="case-item">
           <div class="case-info">
             <div class="case-icon">
-              <i class="icon icon-file"></i>
+              <FileText class="icon" />
             </div>
+
             <div class="case-details">
               <h4>{{ item.id }} - {{ item.name }}</h4>
-              <p>上传于 {{ item.uploadTime }} · {{ item.slices }}切片</p>
+              <p>上传于 {{ item.uploadTime }} · {{ item.sliceCount }}切片</p>
             </div>
           </div>
-          <span :class="getStatusClass(item.status)">{{ getStatusText(item.status) }}</span>
+
+          <span :class="getStatusClass(item.status)">
+            {{ getStatusText(item.status) }}
+          </span>
         </div>
       </div>
     </div>
   </AppLayout>
 </template>
-
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '../components/layout/AppLayout.vue'
-import { recentCases } from '../utils/mockData'
+import { getCases } from '../api/case'
+
+import {
+  Play,
+  FolderOpen,
+  Image,
+  Box,
+  ScanSearch,
+  History,
+  FileText
+} from 'lucide-vue-next'
 
 const router = useRouter()
+const recentCases = ref([])
+const loading = ref(false)
+const error = ref('')
 
 const goToWorkspace = () => {
   router.push('/workspace')
@@ -89,11 +111,28 @@ const getStatusText = (status) => {
 const getStatusClass = (status) => {
   return `status-badge status-${status}`
 }
-</script>
 
+const loadRecentCases = async () => {
+  loading.value = true
+  error.value = ''
+  try {
+    const res = await getCases()
+    recentCases.value = res.data.slice(0, 4)
+  } catch (err) {
+    console.error('加载最近病例失败：', err)
+    error.value = '最近病例加载失败'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadRecentCases()
+})
+</script>
 <style scoped>
 .home-container {
-  padding: clamp(2rem, 5vw, 5rem) clamp(1rem, 3vw, 7.5rem);
+  padding: clamp(1rem, 2.5vw, 2rem) clamp(1rem, 3vw, 7.5rem) clamp(2rem, 4vw, 3.5rem);
   max-width: 90rem;
   margin: 0 auto;
   width: 100%;
@@ -247,18 +286,17 @@ const getStatusClass = (status) => {
 
 /* 图标样式 */
 .icon {
-  display: inline-block;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.8;
+  flex-shrink: 0;
 }
 
-.icon-play::before { content: "▶️"; }
-.icon-folder::before { content: "📁"; }
-.icon-image::before { content: "🖼️"; }
-.icon-box::before { content: "📦"; }
-.icon-scissors::before { content: "✂️"; }
-.icon-clock::before { content: "⏰"; }
-.icon-file::before { content: "📄"; }
+.icon-lg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.6;
+}
 
 /* 响应式设计 */
 @media (max-width: 768px) {

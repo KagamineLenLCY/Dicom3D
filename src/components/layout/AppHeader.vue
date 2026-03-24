@@ -18,35 +18,40 @@
     </div>
     
     <div class="navbar-right">
-      <div class="theme-toggle" @click="toggleTheme">
-        <i :class="themeIcon" class="icon"></i>
-      </div>
+<div class="theme-toggle" @click="toggleTheme">
+  <Sun v-if="theme === 'dark'" class="icon" />
+  <Moon v-else class="icon" />
+</div>
       <div class="user-avatar" @click.stop="toggleDropdown"></div>
       
       <div class="user-dropdown" :class="{ show: dropdownOpen }">
         <div class="dropdown-item" @click="goToSettings">
-          <i class="icon icon-settings"></i>
-          <span>个人设置</span>
-        </div>
-        <div class="dropdown-item" @click="goToHistory">
-          <i class="icon icon-clock"></i>
-          <span>历史记录</span>
-        </div>
-        <div class="dropdown-item danger" @click="logout">
-          <i class="icon icon-logout"></i>
-          <span>退出登录</span>
-        </div>
+  <Settings class="icon" />
+  <span>个人设置</span>
+</div>
+
+<div class="dropdown-item" @click="goToHistory">
+  <History class="icon" />
+  <span>历史记录</span>
+</div>
+
+<div class="dropdown-item danger" @click="logout">
+  <LogOut class="icon" />
+  <span>退出登录</span>
+</div>
       </div>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
+import { Sun, Moon, Settings, History, LogOut } from 'lucide-vue-next'
 
 const router = useRouter()
 const dropdownOpen = ref(false)
+const theme = ref('dark')
 
 const navItems = [
   { name: '首页', path: '/' },
@@ -54,18 +59,14 @@ const navItems = [
   { name: '工作库', path: '/library' }
 ]
 
-const theme = computed(() => {
-  return document.documentElement.getAttribute('data-theme') || 'dark'
-})
-
-const themeIcon = computed(() => {
-  return theme.value === 'dark' ? 'icon-sun' : 'icon-moon'
-})
+const syncTheme = () => {
+  theme.value = document.documentElement.getAttribute('data-theme') || 'dark'
+}
 
 const toggleTheme = () => {
-  const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark'
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
-  document.documentElement.setAttribute('data-theme', newTheme)
+  const next = theme.value === 'dark' ? 'light' : 'dark'
+  document.documentElement.setAttribute('data-theme', next)
+  theme.value = next
 }
 
 const toggleDropdown = () => {
@@ -93,13 +94,23 @@ const logout = () => {
   }
 }
 
-// 点击外部关闭下拉菜单
-document.addEventListener('click', closeDropdown)
+const handleDocumentClick = () => {
+  closeDropdown()
+}
+
+onMounted(() => {
+  syncTheme()
+  document.addEventListener('click', handleDocumentClick)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleDocumentClick)
+})
 </script>
 
 <style scoped>
 .navbar {
-  min-height: 4rem;
+  min-height: 3.2rem; /* 原来4rem -> 90% */
   background-color: var(--bg-panel);
   border-bottom: 1px solid var(--border-color);
   display: flex;
@@ -111,7 +122,6 @@ document.addEventListener('click', closeDropdown)
   z-index: 1000;
   flex-wrap: wrap;
 }
-
 .navbar-left {
   display: flex;
   align-items: center;
@@ -120,8 +130,8 @@ document.addEventListener('click', closeDropdown)
 }
 
 .logo {
-  width: 2rem;
-  height: 2rem;
+  width: 1.8rem;   /* 原来2rem */
+  height: 1.8rem;
   background: var(--primary-color);
   border-radius: var(--radius-sm);
   display: flex;
@@ -129,28 +139,37 @@ document.addEventListener('click', closeDropdown)
   justify-content: center;
   font-weight: var(--font-bold);
   color: white;
-  font-size: 1rem;
+  font-size: 0.9rem; /* 原来1rem */
 }
 
+
 .system-name {
-  font-size: var(--text-lg);
+  font-size: calc(var(--text-lg) * 0.9);
   font-weight: var(--font-semibold);
   white-space: nowrap;
 }
-
 .navbar-center {
   display: flex;
-  gap: var(--space-xs);
-  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--space-xs) * 1.9); /* 原来太挤，稍微拉开一点 */
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.navbar-center::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-item {
-  padding: var(--space-sm) var(--space-lg);
+  padding: calc(var(--space-sm) * 0.8) calc(var(--space-lg) * 0.9);
   color: var(--text-sub);
   cursor: pointer;
   border-radius: var(--radius-sm);
   transition: all 0.2s;
-  font-size: var(--text-md);
+  font-size: calc(var(--text-md) * 0.95);
   font-weight: var(--font-medium);
   text-decoration: none;
   white-space: nowrap;
@@ -176,8 +195,8 @@ document.addEventListener('click', closeDropdown)
 }
 
 .theme-toggle {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2rem;   /* 原来2.25rem */
+  height: 2rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   display: flex;
@@ -193,8 +212,8 @@ document.addEventListener('click', closeDropdown)
 }
 
 .user-avatar {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2rem;   /* 原来2.25rem */
+  height: 2rem;
   border-radius: 50%;
   background: var(--gradient-primary);
   cursor: pointer;
@@ -203,7 +222,7 @@ document.addEventListener('click', closeDropdown)
 
 .user-dropdown {
   position: absolute;
-  top: 3.25rem;
+  top: 2.9rem; /* 原来3.25rem，跟着缩小 */
   right: 0;
   min-width: 12.5rem;
   background-color: var(--bg-panel);
@@ -241,32 +260,13 @@ document.addEventListener('click', closeDropdown)
 }
 
 /* 图标样式 */
+
 .icon {
-  display: inline-block;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.8;
+  flex-shrink: 0;
 }
-
-.icon-sun::before {
-  content: "☀️";
-}
-
-.icon-moon::before {
-  content: "🌙";
-}
-
-.icon-settings::before {
-  content: "⚙️";
-}
-
-.icon-clock::before {
-  content: "⏰";
-}
-
-.icon-logout::before {
-  content: "🚪";
-}
-
 /* 响应式布局 */
 @media (max-width: 768px) {
   .navbar {

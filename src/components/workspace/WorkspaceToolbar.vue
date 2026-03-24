@@ -1,19 +1,32 @@
 <template>
   <div class="toolbar">
-    <button v-for="tool in tools" :key="tool.key" class="tool-btn" @click="handleToolClick(tool.key)">
-      <i :class="tool.icon"></i>
-      {{ tool.label }}
+    <button
+      v-for="tool in tools"
+      :key="tool.key"
+      class="tool-btn"
+      @click="handleToolClick(tool.key)"
+    >
+      <component :is="tool.icon" class="tool-icon" />
+      <span>{{ tool.label }}</span>
     </button>
   </div>
 </template>
 
 <script setup>
+import {
+  Upload,
+  ZoomIn,
+  Move,
+  ScanSearch,
+  RotateCcw
+} from 'lucide-vue-next'
+
 const tools = [
-  { key: 'upload', label: 'Upload', icon: 'icon-upload' },
-  { key: 'zoom', label: 'Zoom', icon: 'icon-zoom' },
-  { key: 'pan', label: 'Pan', icon: 'icon-pan' },
-  { key: 'segment', label: 'Segment', icon: 'icon-scissors' },
-  { key: 'reset', label: 'Reset', icon: 'icon-reset' }
+  { key: 'upload', label: 'Upload', icon: Upload },
+  { key: 'zoom', label: 'Zoom', icon: ZoomIn },
+  { key: 'pan', label: 'Pan', icon: Move },
+  { key: 'segment', label: 'Segment', icon: ScanSearch },
+  { key: 'reset', label: 'Reset', icon: RotateCcw }
 ]
 
 const emit = defineEmits(['tool-click'])
@@ -36,14 +49,14 @@ const handleToolClick = (key) => {
 }
 
 .tool-btn {
-  padding: 8px 16px;
+  padding: 8px 14px;
   background-color: transparent;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-main);
   cursor: pointer;
   font-size: var(--text-md);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
   transition: all 0.2s;
@@ -55,27 +68,27 @@ const handleToolClick = (key) => {
   background-color: var(--bg-active);
 }
 
-.icon {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
+.tool-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.9;
+  flex-shrink: 0;
 }
-
-.icon-upload::before { content: "⬆️"; }
-.icon-zoom::before { content: "🔍"; }
-.icon-pan::before { content: "✋"; }
-.icon-scissors::before { content: "✂️"; }
-.icon-reset::before { content: "🔄"; }
 
 @media (max-width: 768px) {
   .toolbar {
     padding: var(--space-sm) var(--space-lg);
     gap: var(--space-xs);
   }
-  
+
   .tool-btn {
-    padding: 6px 12px;
+    padding: 6px 10px;
     font-size: var(--text-sm);
+  }
+
+  .tool-icon {
+    width: 15px;
+    height: 15px;
   }
 }
 </style>
