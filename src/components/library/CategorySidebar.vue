@@ -1,29 +1,47 @@
 <template>
   <aside class="category-sidebar">
     <h3 class="sidebar-title">分类</h3>
-    <div 
-      v-for="category in categories" 
-      :key="category.id"
+    <div
+      v-for="folder in folderList"
+      :key="folder.id"
       class="category-item"
-      :class="{ active: selectedCategory === category.id }"
-      @click="selectCategory(category.id)"
+      :class="{ active: selectedFolder === folder.id }"
+      @click="selectFolder(folder.id)"
     >
-      <span>{{ category.name }}</span>
-      <span class="category-count">{{ category.count }}</span>
+      <span class="category-name">{{ folder.name }}</span>
+      <span class="category-count">{{ folder.count }}</span>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { categories } from '../../utils/mockData'
+import { computed, ref } from 'vue'
+import { folders, libraryData } from '../../utils/mockData'
 
 const emit = defineEmits(['category-select'])
+const selectedFolder = ref('all')
 
-const selectedCategory = ref('all')
+const folderList = computed(() => {
+  return folders.map(folder => {
+    let count = 0
 
-const selectCategory = (id) => {
-  selectedCategory.value = id
+    if (folder.id === 'all') {
+      count = libraryData.length
+    } else if (folder.id === 'uncategorized') {
+      count = libraryData.filter(item => !item.tags || item.tags.length === 0 || item.tags.includes('uncategorized')).length
+    } else {
+      count = libraryData.filter(item => item.tags?.includes(folder.id)).length
+    }
+
+    return {
+      ...folder,
+      count
+    }
+  })
+})
+
+const selectFolder = (id) => {
+  selectedFolder.value = id
   emit('category-select', id)
 }
 </script>
@@ -39,6 +57,7 @@ const selectCategory = (id) => {
 }
 
 .sidebar-title {
+  color: var(--text-main);
   font-size: var(--text-md);
   font-weight: var(--font-semibold);
   margin-bottom: var(--space-md);
@@ -55,6 +74,7 @@ const selectCategory = (id) => {
   align-items: center;
   transition: all 0.2s;
   white-space: nowrap;
+  gap: var(--space-sm);
 }
 
 .category-item:hover {
@@ -66,9 +86,20 @@ const selectCategory = (id) => {
   color: var(--primary-color);
 }
 
+.category-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .category-count {
   font-size: var(--text-sm);
   color: var(--text-sub);
+  flex-shrink: 0;
+}
+
+.category-item.active .category-count {
+  color: inherit;
 }
 
 @media (max-width: 768px) {

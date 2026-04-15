@@ -39,48 +39,59 @@ export const recentCases = [
 export const libraryData = [
   {
     id: 'P20240315-001',
+    name: '肺部CT扫描',
     organ: '肺部',
     status: 'completed',
     uploadTime: '2024-03-15 14:32',
-    slices: 128
+    slices: 128,
+    tags: ['uncategorized', 'teacher-demo']
   },
   {
     id: 'P20240314-022',
+    name: '肾脏MRI',
     organ: '肾脏',
     status: 'completed',
     uploadTime: '2024-03-14 09:18',
-    slices: 256
+    slices: 256,
+    tags: ['patient-zhang', 'kidney-project']
   },
   {
     id: 'P20240313-015',
+    name: '骨骼CT',
     organ: '骨骼',
     status: 'processing',
     uploadTime: '2024-03-13 16:45',
-    slices: 192
+    slices: 192,
+    tags: ['teacher-demo']
   },
   {
     id: 'P20240312-008',
+    name: '肝脏CT增强',
     organ: '肝脏',
     status: 'completed',
     uploadTime: '2024-03-12 11:20',
-    slices: 320
+    slices: 320,
+    tags: ['uncategorized']
   },
   {
     id: 'P20240311-034',
+    name: '肺部CT复查',
     organ: '肺部',
     status: 'completed',
     uploadTime: '2024-03-11 15:50',
-    slices: 156
+    slices: 156,
+    tags: ['patient-li', 'teacher-demo']
   },
   {
     id: 'P20240310-019',
+    name: '心脏CT',
     organ: '心脏',
     status: 'processing',
     uploadTime: '2024-03-10 10:12',
-    slices: 288
+    slices: 288,
+    tags: ['uncategorized']
   }
 ]
-
 // 病例树数据
 export const caseTree = [
   {
@@ -165,15 +176,13 @@ export const historyData = [
 ]
 
 // 分类数据
-export const categories = [
-  { id: 'all', name: '全部', count: 156 },
-  { id: 'bone', name: '骨骼', count: 42 },
-  { id: 'lung', name: '肺', count: 38 },
-  { id: 'kidney', name: '肾', count: 28 },
-  { id: 'liver', name: '肝', count: 24 },
-  { id: 'heart', name: '心脏', count: 15 },
-  { id: 'brain', name: '脑部', count: 8 },
-  { id: 'other', name: '其他', count: 1 }
+export const folders = [
+  { id: 'all', name: '全部' },
+  { id: 'uncategorized', name: '未分类' },
+  { id: 'patient-zhang', name: 'a' },
+  { id: 'patient-li', name: 'b' },
+  { id: 'kidney-project', name: '肾脏项目' },
+  { id: 'teacher-demo', name: '老师演示' }
 ]
 
 // 统计卡片数据

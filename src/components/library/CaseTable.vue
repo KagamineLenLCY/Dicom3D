@@ -32,7 +32,6 @@
     </table>
   </div>
 </template>
-
 <script setup>
 import { computed } from 'vue'
 import { libraryData } from '../../utils/mockData'
@@ -52,48 +51,49 @@ const emit = defineEmits(['view', 'export', 'delete'])
 
 const filteredData = computed(() => {
   let data = [...libraryData]
-  
-  // 分类筛选
+
+  // 分类筛选（改为 tag 逻辑）
   if (props.category !== 'all') {
-    const organMap = {
-      bone: '骨骼',
-      lung: '肺',
-      kidney: '肾',
-      liver: '肝',
-      heart: '心脏',
-      brain: '脑部',
-      other: '其他'
+    if (props.category === 'uncategorized') {
+      data = data.filter(
+        item =>
+          !item.tags ||
+          item.tags.length === 0 ||
+          item.tags.includes('uncategorized')
+      )
+    } else {
+      data = data.filter(item => item.tags?.includes(props.category))
     }
-    data = data.filter(item => item.organ === organMap[props.category])
   }
-  
+
   // 状态筛选
   if (props.filters.status) {
     data = data.filter(item => item.status === props.filters.status)
   }
-  
+
   // 器官筛选
   if (props.filters.organ) {
     const organMap = {
       bone: '骨骼',
-      lung: '肺',
-      kidney: '肾',
-      liver: '肝',
+      lung: '肺部',
+      kidney: '肾脏',
+      liver: '肝脏',
       heart: '心脏',
       brain: '脑部'
     }
     data = data.filter(item => item.organ === organMap[props.filters.organ])
   }
-  
+
   // 搜索筛选
   if (props.filters.search) {
     const search = props.filters.search.toLowerCase()
-    data = data.filter(item => 
+    data = data.filter(item =>
       item.id.toLowerCase().includes(search) ||
-      item.organ.toLowerCase().includes(search)
+      item.organ.toLowerCase().includes(search) ||
+      (item.name && item.name.toLowerCase().includes(search))
     )
   }
-  
+
   return data
 })
 

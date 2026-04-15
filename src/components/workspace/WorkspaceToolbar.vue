@@ -4,6 +4,7 @@
       v-for="tool in tools"
       :key="tool.key"
       class="tool-btn"
+      :class="{ active: tool.key === 'library' && libraryActive }"
       @click="handleToolClick(tool.key)"
     >
       <component :is="tool.icon" class="tool-icon" />
@@ -11,18 +12,26 @@
     </button>
   </div>
 </template>
-
 <script setup>
 import {
   Upload,
+  FolderOpen,
   ZoomIn,
   Move,
   ScanSearch,
   RotateCcw
 } from 'lucide-vue-next'
 
+const props = defineProps({
+  libraryActive: {
+    type: Boolean,
+    default: false
+  }
+})
+
 const tools = [
   { key: 'upload', label: 'Upload', icon: Upload },
+  { key: 'library', label: 'Library', icon: FolderOpen },
   { key: 'zoom', label: 'Zoom', icon: ZoomIn },
   { key: 'pan', label: 'Pan', icon: Move },
   { key: 'segment', label: 'Segment', icon: ScanSearch },
@@ -67,7 +76,11 @@ const handleToolClick = (key) => {
   border-color: var(--primary-color);
   background-color: var(--bg-active);
 }
-
+.tool-btn.active {
+  border-color: var(--primary-color);
+  background-color: var(--bg-active);
+  color: var(--primary-color);
+}
 .tool-icon {
   width: 16px;
   height: 16px;
